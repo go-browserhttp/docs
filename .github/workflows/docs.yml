@@ -28,7 +28,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Deploy dev (push to main)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
-        run: mike deploy --push --update-aliases dev latest
+        run: |
+          mike deploy --push --update-aliases dev latest
+          mike set-default --push latest
       - name: Deploy release (tag)
         if: startsWith(github.ref, 'refs/tags/')
         run: |
