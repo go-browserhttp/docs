@@ -8,4 +8,6 @@ A pure-Go http.Client with a Chrome TLS fingerprint (uTLS) — bypass anti-bot 4
 
 <div class="repo-grid" markdown>
 <a class="repo-card" href="repos/browserhttp.md"><code>browserhttp</code><br><small>Pure-Go `http.Client` presenting a Chrome TLS fingerprint via uTLS. CGO=0.</small></a>
+<a class="repo-card" href="repos/browsergit.md"><code>browsergit</code><br><small>The git layer shared by the go-tex, go-slides and notebook playgrounds: load from a forge, propose a branch plus pull request. Runs in the browser.</small></a>
+<a class="repo-card" href="repos/gitcorsproxy.md"><code>gitcorsproxy</code><br><small>A CORS reverse proxy for git smart-HTTP, for Go/wasm git clients in a browser.</small></a>
 </div>
