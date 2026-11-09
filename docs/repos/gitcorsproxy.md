@@ -16,6 +16,13 @@ It stores nothing: the browser holds the user's token and sends it on each reque
 - The Authorization header is never logged, query string included.
 - It is never followed through a redirect: the proxy never follows one and relays no `Location`.
 
+## Hardening (v0.5.0)
+
+- A refused host segment (which may be `user:token@host`) is logged only as a strict, bounded `hostname[:port]` with the userinfo dropped, otherwise as `<invalid-host>`.
+- `-trusted-hops` defaults to auto: `1` behind a reverse proxy, `0` when the proxy serves TLS itself (`-tls-cert` and `-tls-key`), where a client could otherwise choose its own `X-Forwarded-For` address. A non-zero value with TLS prints a warning.
+- The host is resolved once; the connection goes to the IP that was checked, and private, loopback, link-local, multicast, unspecified and metadata addresses are refused at dial time (no DNS rebinding). The default transport ignores `HTTP_PROXY`/`HTTPS_PROXY`.
+- Repository paths with empty, `.` or `..` segments (also percent-encoded), control characters or backslashes, and `info/refs` queries without exactly one `service` value, are refused `400`. The route parser is fuzzed.
+
 !!! warning
     The operator of a proxy can read every token that passes through it. Using a public proxy means trusting its operator. Prefer a forge REST API, which needs no proxy (see [browsergit](browsergit.md)), or run your own proxy.
 
