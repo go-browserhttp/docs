@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/logo.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -437,6 +437,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#hardening-v050" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardening (v0.5.0)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -515,6 +526,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#hardening-v050" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardening (v0.5.0)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -567,6 +589,13 @@
 <li>A response to a request that carried <code>Authorization</code> is <code>Cache-Control: private, no-store</code> with <code>Vary: Authorization</code>, whatever the upstream said.</li>
 <li>The Authorization header is never logged, query string included.</li>
 <li>It is never followed through a redirect: the proxy never follows one and relays no <code>Location</code>.</li>
+</ul>
+<h2 id="hardening-v050">Hardening (v0.5.0)</h2>
+<ul>
+<li>A refused host segment (which may be <code>user:token@host</code>) is logged only as a strict, bounded <code>hostname[:port]</code> with the userinfo dropped, otherwise as <code>&lt;invalid-host&gt;</code>.</li>
+<li><code>-trusted-hops</code> defaults to auto: <code>1</code> behind a reverse proxy, <code>0</code> when the proxy serves TLS itself (<code>-tls-cert</code> and <code>-tls-key</code>), where a client could otherwise choose its own <code>X-Forwarded-For</code> address. A non-zero value with TLS prints a warning.</li>
+<li>The host is resolved once; the connection goes to the IP that was checked, and private, loopback, link-local, multicast, unspecified and metadata addresses are refused at dial time (no DNS rebinding). The default transport ignores <code>HTTP_PROXY</code>/<code>HTTPS_PROXY</code>.</li>
+<li>Repository paths with empty, <code>.</code> or <code>..</code> segments (also percent-encoded), control characters or backslashes, and <code>info/refs</code> queries without exactly one <code>service</code> value, are refused <code>400</code>. The route parser is fuzzed.</li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -639,7 +668,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "content.code.copy", "search.suggest"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>
