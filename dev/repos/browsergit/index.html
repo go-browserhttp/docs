@@ -423,6 +423,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#behind-a-server-gitd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behind a server: gitd
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#security" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -550,6 +561,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#behind-a-server-gitd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behind a server: gitd
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#security" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -601,7 +623,7 @@
 
 <h1 id="browsergit">browsergit</h1>
 <p>The git layer shared by the go-tex, go-slides and notebook playgrounds: load a project from GitHub, GitLab or Gitea/Forgejo and propose changes back as a new branch plus a pull request. Pure Go, runs in the browser (js/wasm).</p>
-<p>Released as v0.1.0. CGO=0, BSD-3-Clause.</p>
+<p>Released as v0.4.0. CGO=0, BSD-3-Clause.</p>
 <h2 id="packages">Packages</h2>
 <table>
 <thead>
@@ -626,6 +648,10 @@
 <tr>
 <td><code>browsergit</code> (root)</td>
 <td>go-git v5 in memory, smart HTTP over the browser's Fetch: clone, status, commit, pull, push, snapshot.</td>
+</tr>
+<tr>
+<td><code>gitd</code></td>
+<td><code>Remote</code> over <a href="https://github.com/go-slides/gitd">slides-gitd</a>, the self-hosted backend a playground is served behind. The page holds no forge credential (since v0.4.0).</td>
 </tr>
 <tr>
 <td><code>gitrpc</code></td>
@@ -671,6 +697,26 @@
 </tbody>
 </table>
 <p><code>remote.Git</code> cannot open a pull request: it pushes the new branch and returns the forge's compare page.</p>
+<h2 id="behind-a-server-gitd">Behind a server: <code>gitd</code></h2>
+<p>When a playground is served behind slides-gitd, the page needs no forge token at all. The <code>gitd</code> package is a <code>remote.Remote</code> (<code>Load</code>, <code>Propose</code>, <code>Refresh</code>) that talks to the page's own origin only (Fetch mode same-origin, via the new <code>forge.Request.SameOrigin</code>). The server's HttpOnly session cookie is never readable by the page, and the per-session CSRF token is kept in memory as a <code>secret.Token</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nx">c</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">gitd</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="nx">gitd</span><span class="p">.</span><span class="nx">Config</span><span class="p">{})</span><span class="w"> </span><span class="c1">// see gitd.Config for the options</span>
+<span class="nx">info</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">Session</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span><span class="w">     </span><span class="c1">// discovery and CSRF handshake</span>
+<span class="nx">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">info</span>
+<span class="k">switch</span><span class="w"> </span><span class="p">{</span>
+<span class="k">case</span><span class="w"> </span><span class="nx">errors</span><span class="p">.</span><span class="nx">Is</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="nx">gitd</span><span class="p">.</span><span class="nx">ErrNoServer</span><span class="p">):</span>
+<span class="w">    </span><span class="c1">// no server here: behave as without one (token-based forge path)</span>
+<span class="k">case</span><span class="w"> </span><span class="nx">errors</span><span class="p">.</span><span class="nx">Is</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="nx">gitd</span><span class="p">.</span><span class="nx">ErrSignIn</span><span class="p">):</span>
+<span class="w">    </span><span class="c1">// HTTP 401 (wraps remote.ErrAuth): sign in again, never fall back to a token</span>
+<span class="p">}</span>
+<span class="nx">r</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">c</span><span class="p">.</span><span class="nx">Remote</span><span class="p">(</span><span class="s">"github"</span><span class="p">)</span><span class="w"> </span><span class="c1">// by forge name: Load / Propose / Refresh through the server</span>
+</code></pre></div>
+<ul>
+<li><code>Session(ctx)</code> is the handshake. <code>ErrNoServer</code> means behave as without a server; <code>ErrSignIn</code> means sign in again and never fall back to a token.</li>
+<li>The server names the proposal's branch; <code>Proposal.Branch</code> is ignored.</li>
+<li><code>StoreCredential</code> and <code>ForgetCredential</code> manage the credential of user-token forges.</li>
+<li>Server answers are validated as hostile input, and error text is the status plus the server's error class only.</li>
+<li><code>FuzzParseSession</code> and <code>FuzzDecodeLoad</code> fuzz the parsers.</li>
+</ul>
 <h2 id="security">Security</h2>
 <ul>
 <li>The token is never printed, serialised, redirected or echoed.</li>
